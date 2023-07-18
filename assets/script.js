@@ -1,4 +1,3 @@
-
 // Function to get the current date and time in the format you desire
 function getCurrentDateTime() {
     const now = new Date();
@@ -29,6 +28,15 @@ function getCurrentDateTime() {
   // If you want to update the date and time continuously, you can use setInterval
   setInterval(updateCurrentDateTime, 1000); // Uncomment this line if you want continuous updates every second
 
+   // Function to get the current date in the format "YYYY-MM-DD"
+   function getCurrentDate() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+    }
+
   // Function to get the current hour in 24-hour format
   function getCurrentHour() {
     const now = new Date();
@@ -37,26 +45,40 @@ function getCurrentDateTime() {
 
   // Function to apply appropriate classes to the time blocks based on the current hour
   function updateBlockClasses() {
+    const currentDate = getCurrentDate();
     const currentHour = getCurrentHour();
     const timeBlocks = document.querySelectorAll('.time-block');
 
     timeBlocks.forEach((block) => {
-      const blockHour = parseInt(block.id.split('-')[1]);
-      if (blockHour < currentHour) {
+      const blockDate = block.id.split('-')[1];
+      const blockHour = parseInt(block.id.split('-')[2]);
+
+      if (blockDate < currentDate) {
         block.classList.remove('future');
         block.classList.remove('present');
         block.classList.add('past');
-      } else if (blockHour === currentHour) {
-        block.classList.remove('future');
-        block.classList.remove('past');
-        block.classList.add('present');
+      } else if (blockDate === currentDate) {
+        if (blockHour < currentHour) {
+          block.classList.remove('future');
+          block.classList.remove('past');
+          block.classList.add('present');
+        } else if (blockHour === currentHour) {
+          block.classList.remove('future');
+          block.classList.remove('past');
+          block.classList.add('present');
+        } else {
+          block.classList.remove('present');
+          block.classList.remove('past');
+          block.classList.add('future');
+        }
       } else {
-        block.classList.remove('past');
         block.classList.remove('present');
+        block.classList.remove('past');
         block.classList.add('future');
       }
     });
   }
+
 
   // Function to handle click events on the time block to allow entering an event
   function handleTimeBlockClick(event) {
@@ -116,6 +138,12 @@ function getCurrentDateTime() {
     renderSavedEvents();
     setupEventListeners();
   }
+
+  // Call the updateBlockClasses function when the page loads
+  window.onload = () => {
+    updateBlockClasses();
+    initSchedulerApp();
+  };
 
   // Call the initSchedulerApp function when the page loads
   window.onload = initSchedulerApp;
